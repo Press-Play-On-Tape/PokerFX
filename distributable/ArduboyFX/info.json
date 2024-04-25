@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "binaries": [
+    {
+      "title": "PokerFX",
+      "filename": "PokerFX.hex",
+      "flashdata": "PokerFX-data.bin",
+      "flashsave": "PokerFX-save.bin",
+      "device": "ArduboyFX"
+    }
+  ]
+}

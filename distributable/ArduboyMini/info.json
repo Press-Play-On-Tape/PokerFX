@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 3,
+  "binaries": [
+    {
+      "title": "Poker",
+      "filename": "PokerMini.hex",
+      "flashdata": "PokerMini-data.bin",
+      "flashsave": "PokerMini-save.bin",
+      "device": "ArduboyMini"
+    }
+  ]
+}

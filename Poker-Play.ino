@@ -70,28 +70,36 @@ void updateInput() {
             case 5:
                 if (bet + 5 <= cookie.bank) {
                     bet = 10;  
+                    #ifndef DEBUG_SOUNDS
                     playSFX(MusicSFX::SFX_Bet2);
+                    #endif
                 }
                 break;
 
             case 10:
                 if (bet + 15 <= cookie.bank) {
                     bet = 25;  
+                    #ifndef DEBUG_SOUNDS
                     playSFX(MusicSFX::SFX_Bet3);
+                    #endif
                 }
                 break;
 
             case 25:
                 if (bet + 25 <= cookie.bank) {
                     bet = 50;  
+                    #ifndef DEBUG_SOUNDS
                     playSFX(MusicSFX::SFX_Bet4);
+                    #endif
                 }
                 break;
 
             case 50:
                 if (bet + 50 <= cookie.bank) {
                     bet = 100;  
+                    #ifndef DEBUG_SOUNDS
                     playSFX(MusicSFX::SFX_Bet5);
+                    #endif
                 }
                 break;
 
@@ -111,22 +119,30 @@ void updateInput() {
 
             case 10:
                 bet = 5;  
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Bet1);
+                #endif
                 break;
 
             case 25:
                 bet = 10; 
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Bet2);
+                #endif
                 break;
 
             case 50:
                 bet = 25;  
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Bet3);
+                #endif
                 break;
 
             case 100:
                 bet = 50;  
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Bet4);
+                #endif
                 break;
 
         }
@@ -167,13 +183,17 @@ void updateInput() {
             if (Hand[cardSelect - 1]->state == HELD) {
 
                 Hand[cardSelect - 1]->state = DRAWN;
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Bet1);
+                #endif
 
             } 
             else {
 
                 Hand[cardSelect - 1]->state = HELD;
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Bet2);
+                #endif
 
             }
 
@@ -188,7 +208,10 @@ void updateInput() {
         if (cardSelect > 0 && Hand[cardSelect - 1] != NULL) {
 
             Hand[cardSelect - 1]->state = HELD;
+
+            #ifndef DEBUG_SOUNDS
             playSFX(MusicSFX::SFX_Bet2);
+            #endif
 
         }
 
@@ -201,7 +224,9 @@ void updateInput() {
         if (cardSelect > 0 && Hand[cardSelect - 1] != NULL) {
 
             Hand[cardSelect - 1]->state = DRAWN;
+            #ifndef DEBUG_SOUNDS
             playSFX(MusicSFX::SFX_Bet1);
+            #endif
 
         }
 
@@ -220,7 +245,10 @@ void updateInput() {
             lastBet = bet;
             dealCards();
             currentRound = Rounds::Deal;
+
+            #ifndef DEBUG_SOUNDS
             playSFX(MusicSFX::SFX_DoubleBeep);
+            #endif
 
         } 
         else if (currentRound == Rounds::Deal) {
@@ -228,7 +256,10 @@ void updateInput() {
             currentRound = Rounds::Draw;
             cardSelect = 1;
             drawCards();
+
+            #ifndef DEBUG_SOUNDS
             playSFX(MusicSFX::SFX_DoubleBeepDown);
+            #endif
 
         }
 
@@ -248,7 +279,9 @@ void updateRound() {
     if (cookie.bank < 5 && currentRound == Rounds::Bet) {
 
         gameState = GameState::GameOver;
+        #ifndef DEBUG_SOUNDS
         playSFX(MusicSFX::SFX_Death, true);
+        #endif
 
     }
 
@@ -377,7 +410,9 @@ void displayWin(uint8_t currentPlane) {
         switch (winTimer) {
 
             case Constants::WinFlashTime_Start:
+                #ifndef DEBUG_SOUNDS
                 playSFX(MusicSFX::SFX_Three_Inc);
+                #endif
                 launchParticles(64, 32);
                 break;
 
@@ -396,7 +431,9 @@ void displayWin(uint8_t currentPlane) {
     else {
         
         if (winTimer == Constants::WinFlashTime_Start) {
+            #ifndef DEBUG_SOUNDS
             playSFX(MusicSFX::SFX_Three_Dec);
+            #endif
         } 
 
     }

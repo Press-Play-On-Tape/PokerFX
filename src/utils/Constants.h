@@ -7,7 +7,7 @@
 
 #define _DEBUG
 #define _DEBUG_RENDER_HAND
-
+#define _DEBUG_SOUNDS
 
 namespace Music {
 

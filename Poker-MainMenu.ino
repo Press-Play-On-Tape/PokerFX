@@ -147,7 +147,9 @@ void title_Update() {
 
                 soundSettings.setMusic(!soundSettings.getMusic());
                 if (soundSettings.getMusic()) {
+                    #ifndef DEBUG_SOUNDS
                     playMusic();
+                    #endif
                 }
                 else {
                     SynthU::stop();

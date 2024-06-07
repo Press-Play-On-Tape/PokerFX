@@ -59,8 +59,7 @@ struct SynthU
     // test for audio enabled
     // return true if playing
     static bool update();
-    static void pause();
-    static void unpause();
+    
 };
 
 #ifdef SYNTHU_IMPLEMENTATION
@@ -105,7 +104,6 @@ static volatile channel_t  g_channels[SYNTHU_NUM_CHANNELS];
 static volatile bool       g_playing;
 static          uint8_t    g_tick_frame;
 static volatile uint24_t   g_buffer_addr;
-static volatile uint24_t   g_buffer_addr_bkp;
 static volatile uint8_t    g_phase_adv;
 static volatile int16_t    g_tbase;
 #if SYNTHU_ENABLE_VOLUME
@@ -205,6 +203,30 @@ static void load_fx_data()
             g_buffer_addr,
             (uint8_t*)&g_tick,
             sizeof(g_tick));
+        
+        // song tbase
+        int16_t t = 0;
+        auto* bptr = g_tick.cmds;
+        for(uint8_t i = 0; i < SYNTHU_NUM_CHANNELS; ++i)
+        {
+            uint8_t vol = ld_u8_inc(bptr);
+            uint16_t period = ld_u16_inc(bptr);
+            if(period == 0) g_playing = false;
+#ifdef ARDUINO_ARCH_AVR
+            asm volatile(R"ASM(
+                    lsr %[vol]
+                    sub %A[t], %[vol]
+                    sbc %B[t], __zero_reg__
+                )ASM"
+                : [vol] "+&r" (vol)
+                , [t]   "+&r" (t)
+                );
+#else
+            vol >>= 1;
+            t -= vol;
+#endif
+        }
+        g_tbase = t;
     }
 #if SYNTHU_ENABLE_SFX
     if(g_playing_sfx && g_tick_sfx.reps == 0)
@@ -217,32 +239,9 @@ static void load_fx_data()
             g_playing_sfx = false;
     }
 #endif
-    
-    auto* bptr = g_tick.cmds;
-    int16_t t = 0;
-    
-    // song tbase
-    for(uint8_t i = 0; i < SYNTHU_NUM_CHANNELS; ++i)
-    {
-        uint8_t vol = ld_u8_inc(bptr);
-        uint16_t period = ld_u16_inc(bptr);
-        if(period == 0) SynthU::stop();
-#ifdef ARDUINO_ARCH_AVR
-        asm volatile(R"ASM(
-                lsr %[vol]
-                sub %A[t], %[vol]
-                sbc %B[t], __zero_reg__
-            )ASM"
-            : [vol] "+&r" (vol)
-            , [t]   "+&r" (t)
-            );
-#else
-        vol >>= 1;
-        t -= vol;
-#endif
-    }
-    
-    g_tbase = t;
+        
+    if(!g_playing && !g_playing_sfx)
+        SynthU::stop();
 }
 
 static void disable()
@@ -266,29 +265,19 @@ static bool enabled()
 
 }
 
-void SynthU::pause()
-{
-    synthu_detail::g_buffer_addr_bkp = synthu_detail::g_buffer_addr;
-}
-
-void SynthU::unpause()
-{
-    play(synthu_detail::g_buffer_addr_bkp);
-}
-
 uint8_t SynthU::volume()
 {
 #if SYNTHU_ENABLE_VOLUME
     return synthu_detail::g_volume;
 #else
-    return 3;
+    return 8;
 #endif
 }
 
 void SynthU::setVolume(uint8_t vol)
 {
 #if SYNTHU_ENABLE_VOLUME
-    synthu_detail::g_volume = ((vol * 3) / 2); //Constants::VolumeFactor;
+    synthu_detail::g_volume = vol;
 #endif
 }
 
@@ -304,7 +293,7 @@ uint8_t SynthU::volumeSFX()
 void SynthU::setVolumeSFX(uint8_t vol)
 {
 #if SYNTHU_ENABLE_SFX && SYNTHU_ENABLE_VOLUME
-    synthu_detail::g_volume_sfx = (vol * 2); //Constants::VolumeFactor;
+    synthu_detail::g_volume_sfx = vol;
 #endif
 }
 
@@ -439,7 +428,7 @@ ISR(TIMER3_COMPA_vect)
             
             uint16_t pha = channel->pha;
             pha += adv;
-            while(pha >= period)
+            if(pha >= period)
                 pha -= period;
             uint16_t half_period = period / 2;
             if(pha < half_period)

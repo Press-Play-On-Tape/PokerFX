@@ -4,6 +4,7 @@
 static MusicSong current_song;
 static MusicSong current_song_bkp;
 
+#ifndef DEBUG_SOUNDS
 void audioToggle() {
 
     if (isAudioEnabled()) {
@@ -147,25 +148,9 @@ bool isSongPlaying() {
 
 }
 
-
 void playMusic() {
  
     playSong(current_song);
 
 }
-
-void pauseSong() {
- 
-    current_song_bkp = current_song;
-
-    SynthU::pause();
-
-}
-
-void unpauseSong() {
- 
-    current_song = current_song_bkp;
-
-    SynthU::unpause();
-
-}
+#endif
